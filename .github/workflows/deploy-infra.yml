@@ -72,10 +72,6 @@ jobs:
           name: terraform-plan
           path: terraform
 
-      - name: Show files
-        run: |
-          ls -laR .
-
       - name: Apply changes
         run: |
           cd terraform
