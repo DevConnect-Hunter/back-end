@@ -46,7 +46,7 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          terraform plan --no-color | tee plan.txt
+          terraform plan -no-color | tee plan.txt
           echo "plan<<EOF" >> $GITHUB_ENV
           cat plan.txt >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
