@@ -13,5 +13,5 @@ terraform {
 }
 
 resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = "dev-connect-frontend"
+  bucket = "devconnect-hunter-frontend"
 }
