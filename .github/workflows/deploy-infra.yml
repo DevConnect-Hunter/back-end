@@ -35,7 +35,9 @@ jobs:
           terraform init -input=false
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -input=false
+        run: |
+          cd terraform
+          terraform plan -out=tfplan -input=false
 
   deploy-infra:
     name: Deploy infrastructure
