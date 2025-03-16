@@ -1,6 +1,7 @@
 name: Deploy infrastructure
 
 on:
+  workflow_dispath:
   push:
     branches:
       - main
