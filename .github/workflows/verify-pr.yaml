@@ -45,7 +45,10 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -no-color | tee plan.txt
+        run: |
+          echo "plan<<EOF" >> $GITHUB_ENV
+          cat plan.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Comment PR with Terraform Plan
         uses: mshick/add-pr-comment@v2
@@ -53,6 +56,6 @@ jobs:
           message: |
             ### Terraform Plan 🏗️
             ```
-            $(cat plan.txt)
+            ${{ env.plan }}
             ```
           repo-token: ${{ secrets.GITHUB_TOKEN }}

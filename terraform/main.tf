@@ -5,3 +5,7 @@ terraform {
     region = "us-east-2"
   }
 }
+
+resource "aws_s3_bucket" "frontend_bucket" {
+  bucket = "dev-connect-frontend"
+}
