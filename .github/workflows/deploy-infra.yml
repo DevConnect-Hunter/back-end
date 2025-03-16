@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/deploy-infra.yaml
+      - .github/workflows/deploy-infra.yml
       - 'terraform/**'
 
 jobs:
@@ -66,11 +66,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Upload plan
+      - name: Download plan
         uses: actions/download-artifact@v4
         with:
           name: terraform-plan
           path: terraform/tfplan
+
+      - name: Show files
+        run: |
+          ls -laR .
 
       - name: Apply changes
         run: |
