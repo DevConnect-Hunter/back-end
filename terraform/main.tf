@@ -64,7 +64,7 @@ resource "aws_cloudfront_origin_access_identity" "oai_frontend" {
 }
 
 # Give CloudFront access to the S3 bucket
-resource "aws_s3_bucket_policy" "my_bucket_policy" {
+resource "aws_s3_bucket_policy" "frontend_bucket_access_policy" {
   bucket = aws_s3_bucket.frontend_bucket.id
 
   policy = jsonencode({
