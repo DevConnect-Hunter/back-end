@@ -8,7 +8,6 @@ terraform {
   backend "s3" {
     bucket = "dev-connect-terraform-state"
     key    = "terraform.tfstate"
-    region = var.region
   }
 }
 
