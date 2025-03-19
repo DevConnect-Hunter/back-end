@@ -13,6 +13,13 @@ terraform {
 
 provider "aws" {
   region = var.region
+  alias  = "main"
+}
+
+# ACM must be in us-east-1
+provider "aws" {
+  region = "us-east-1"
+  alias  = "acm"
 }
 
 # S3 bucket to hold the frontend distribution
@@ -106,7 +113,7 @@ resource "aws_route53_record" "www" {
 
 resource "aws_route53_record" "apex" {
   zone_id = aws_route53_zone.dns_zone.zone_id
-  name    = ""  # Empty string for apex domain
+  name = ""  # Empty string for apex domain
   type    = "A"
   alias {
     name                   = aws_cloudfront_distribution.frontend_cloudfront.domain_name
@@ -119,6 +126,7 @@ resource "aws_route53_record" "apex" {
 ### Certificate
 
 resource "aws_acm_certificate" "cert" {
+  provider          = aws.acm
   domain_name       = var.domain
   validation_method = "DNS"
   subject_alternative_names = [
@@ -138,10 +146,9 @@ resource "aws_route53_record" "cert_validation" {
       type   = dvo.resource_record_type
     }
   }
-
   allow_overwrite = true
   name            = each.value.name
-  records         = [each.value.record]
+  records = [each.value.record]
   ttl             = 60
   type            = each.value.type
   zone_id         = aws_route53_zone.dns_zone.zone_id
@@ -149,6 +156,7 @@ resource "aws_route53_record" "cert_validation" {
 
 # Validate the ACM certificate using Route 53
 resource "aws_acm_certificate_validation" "cert_validation" {
+  provider                = aws.acm
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
