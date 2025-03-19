@@ -152,7 +152,7 @@ resource "aws_route53domains_registered_domain" "domain" {
 }
 
 resource "aws_route53_zone" "dns_zone" {
-  name = var.domain
+  name = aws_route53domains_registered_domain.domain.domain_name
 }
 
 # Define the ACM certificate
