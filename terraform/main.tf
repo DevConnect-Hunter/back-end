@@ -120,11 +120,6 @@ resource "aws_route53_record" "cert_validation" {
   zone_id         = aws_route53_zone.dns_zone.zone_id
 }
 
-resource "aws_acm_certificate_validation" "validation" {
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
-}
-
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.dns_zone.zone_id
   name    = "www"
