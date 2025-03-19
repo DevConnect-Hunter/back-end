@@ -95,9 +95,9 @@ resource "aws_route53_zone" "dns_zone" {
 
 # Define the ACM certificate
 resource "aws_acm_certificate" "cert" {
-  domain_name       = aws_route53_zone.dns_zone.name
+  domain_name       = var.domain
   validation_method = "DNS"
-  subject_alternative_names = ["www.${aws_route53_zone.dns_zone.name}"]
+  subject_alternative_names = ["www.${var.domain}"]
   lifecycle {
     create_before_destroy = true
   }
@@ -127,7 +127,18 @@ resource "aws_acm_certificate_validation" "validation" {
 
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.dns_zone.zone_id
-  name    = "www.${aws_route53_zone.dns_zone.name}"
+  name    = "www"
+  type    = "A"
+  alias {
+    name                   = aws_cloudfront_distribution.frontend_cloudfront.domain_name
+    zone_id                = aws_cloudfront_distribution.frontend_cloudfront.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "apex" {
+  zone_id = aws_route53_zone.dns_zone.zone_id
+  name    = ""  # Empty string for apex domain
   type    = "A"
   alias {
     name                   = aws_cloudfront_distribution.frontend_cloudfront.domain_name
