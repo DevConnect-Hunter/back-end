@@ -11,7 +11,13 @@ variable "frontend_bucket" {
 }
 
 variable "cloudfront_origin" {
-  type = string
+  type        = string
   description = "The origin ID of the CloudFront distribution"
-  default = "devconnect-hunter-cloudfront"
+  default     = "devconnect-hunter-cloudfront"
+}
+
+variable "domain" {
+  type        = string
+  description = "The domain to bind to CloudFront"
+  default     = "devconnect-hunter.info"
 }

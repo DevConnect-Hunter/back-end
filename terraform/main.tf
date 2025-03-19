@@ -20,7 +20,9 @@ resource "aws_s3_bucket" "frontend_bucket" {
   bucket = var.frontend_bucket
 }
 
-# CDN based on S3 bucket: CloudFront
+
+### CDN based on S3 bucket: CloudFront
+
 resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   origin {
     domain_name = aws_s3_bucket.frontend_bucket.bucket_regional_domain_name
@@ -33,8 +35,8 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods = ["GET", "HEAD"]
     target_origin_id = var.cloudfront_origin
     forwarded_values {
       query_string = false
@@ -75,9 +77,118 @@ resource "aws_s3_bucket_policy" "frontend_bucket_access_policy" {
         Principal = {
           AWS = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.oai_frontend.iam_arn}"
         }
-        Action = "s3:GetObject"
+        Action   = "s3:GetObject"
         Resource = "${aws_s3_bucket.frontend_bucket.arn}/*"
       }
     ]
   })
+}
+
+
+### DNS
+
+locals {
+  contact_info = {
+    first_name         = "Ray"
+    last_name          = "Sinnema"
+    address_line_1     = "9124 Harlequin Cir"
+    city               = "Frederick"
+    state              = "CO"
+    country_code       = "US"
+    zip_code           = "80504"
+    phone_number       = "+1.7208381972"
+    email              = "rssinnema@pm.me"
+  }
+}
+
+resource "aws_route53domains_registered_domain" "domain" {
+  domain_name = var.domain
+  name_server {
+    name = "ns-1.awsdns-1.com"
+  }
+  name_server {
+    name = "ns-2.awsdns-2.org"
+  }
+  name_server {
+    name = "ns-3.awsdns-3.net"
+  }
+  name_server {
+    name = "ns-4.awsdns-4.co.uk"
+  }
+  admin_contact {
+    first_name         = local.contact_info.first_name
+    last_name          = local.contact_info.last_name
+    address_line_1     = local.contact_info.address_line_1
+    city               = local.contact_info.city
+    state              = local.contact_info.state
+    country_code       = local.contact_info.country_code
+    zip_code           = local.contact_info.zip_code
+    phone_number       = local.contact_info.phone_number
+    email              = local.contact_info.email
+  }
+  registrant_contact {
+    first_name         = local.contact_info.first_name
+    last_name          = local.contact_info.last_name
+    address_line_1     = local.contact_info.address_line_1
+    city               = local.contact_info.city
+    state              = local.contact_info.state
+    country_code       = local.contact_info.country_code
+    zip_code           = local.contact_info.zip_code
+    phone_number       = local.contact_info.phone_number
+    email              = local.contact_info.email
+  }
+  tech_contact {
+    first_name         = local.contact_info.first_name
+    last_name          = local.contact_info.last_name
+    address_line_1     = local.contact_info.address_line_1
+    city               = local.contact_info.city
+    state              = local.contact_info.state
+    country_code       = local.contact_info.country_code
+    zip_code           = local.contact_info.zip_code
+    phone_number       = local.contact_info.phone_number
+    email              = local.contact_info.email
+  }
+  auto_renew = true
+}
+
+resource "aws_route53_zone" "dns_zone" {
+  name = var.domain
+}
+
+# Define the ACM certificate
+resource "aws_acm_certificate" "my_certificate" {
+  domain_name       = aws_route53_zone.dns_zone.name
+  validation_method = "DNS"
+  subject_alternative_names = ["www.${aws_route53_zone.dns_zone.name}"]
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Validate the ACM certificate using Route 53
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.my_certificate.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.dns_zone.zone_id
+}
+
+resource "aws_route53_record" "www" {
+  zone_id = aws_route53_zone.dns_zone.zone_id
+  name    = "www.${aws_route53_zone.dns_zone.name}"
+  type    = "A"
+  alias {
+    name                   = aws_cloudfront_distribution.frontend_cloudfront.domain_name
+    zone_id                = aws_cloudfront_distribution.frontend_cloudfront.hosted_zone_id
+    evaluate_target_health = false
+  }
 }
