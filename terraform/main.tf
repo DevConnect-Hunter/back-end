@@ -101,19 +101,17 @@ locals {
   }
 }
 
+resource "aws_route53_zone" "dns_zone" {
+  name = var.domain
+}
+
 resource "aws_route53domains_registered_domain" "domain" {
-  domain_name = var.domain
-  name_server {
-    name = "ns-1.awsdns-1.com"
-  }
-  name_server {
-    name = "ns-2.awsdns-2.org"
-  }
-  name_server {
-    name = "ns-3.awsdns-3.net"
-  }
-  name_server {
-    name = "ns-4.awsdns-4.co.uk"
+  domain_name = aws_route53_zone.dns_zone.name
+  dynamic "name_server" {
+    for_each = aws_route53_zone.dns_zone.name_servers
+    content {
+      name = name_server.value
+    }
   }
   admin_contact {
     first_name         = local.contact_info.first_name
@@ -149,10 +147,6 @@ resource "aws_route53domains_registered_domain" "domain" {
     email              = local.contact_info.email
   }
   auto_renew = true
-}
-
-resource "aws_route53_zone" "dns_zone" {
-  name = aws_route53domains_registered_domain.domain.domain_name
 }
 
 # Define the ACM certificate
