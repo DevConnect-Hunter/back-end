@@ -87,66 +87,10 @@ resource "aws_s3_bucket_policy" "frontend_bucket_access_policy" {
 
 ### DNS
 
-locals {
-  contact_info = {
-    first_name         = "Ray"
-    last_name          = "Sinnema"
-    address_line_1     = "9124 Harlequin Cir"
-    city               = "Frederick"
-    state              = "CO"
-    country_code       = "US"
-    zip_code           = "80504"
-    phone_number       = "+1.7208381972"
-    email              = "rssinnema@pm.me"
-  }
-}
+# NOTE: DNS registration must be done manually via the AWS Console
 
 resource "aws_route53_zone" "dns_zone" {
   name = var.domain
-}
-
-resource "aws_route53domains_registered_domain" "domain" {
-  domain_name = aws_route53_zone.dns_zone.name
-  dynamic "name_server" {
-    for_each = aws_route53_zone.dns_zone.name_servers
-    content {
-      name = name_server.value
-    }
-  }
-  admin_contact {
-    first_name         = local.contact_info.first_name
-    last_name          = local.contact_info.last_name
-    address_line_1     = local.contact_info.address_line_1
-    city               = local.contact_info.city
-    state              = local.contact_info.state
-    country_code       = local.contact_info.country_code
-    zip_code           = local.contact_info.zip_code
-    phone_number       = local.contact_info.phone_number
-    email              = local.contact_info.email
-  }
-  registrant_contact {
-    first_name         = local.contact_info.first_name
-    last_name          = local.contact_info.last_name
-    address_line_1     = local.contact_info.address_line_1
-    city               = local.contact_info.city
-    state              = local.contact_info.state
-    country_code       = local.contact_info.country_code
-    zip_code           = local.contact_info.zip_code
-    phone_number       = local.contact_info.phone_number
-    email              = local.contact_info.email
-  }
-  tech_contact {
-    first_name         = local.contact_info.first_name
-    last_name          = local.contact_info.last_name
-    address_line_1     = local.contact_info.address_line_1
-    city               = local.contact_info.city
-    state              = local.contact_info.state
-    country_code       = local.contact_info.country_code
-    zip_code           = local.contact_info.zip_code
-    phone_number       = local.contact_info.phone_number
-    email              = local.contact_info.email
-  }
-  auto_renew = true
 }
 
 # Define the ACM certificate
