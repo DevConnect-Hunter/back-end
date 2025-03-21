@@ -38,7 +38,7 @@ resource "aws_cloudfront_distribution" "frontend_cloudfront" {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai_frontend.cloudfront_access_identity_path
     }
   }
-  aliases = ["devconnect-hunter.org", "www.devconnect-hunter.org"]
+  aliases = [var.domain, "www.${var.domain}"]
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
