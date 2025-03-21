@@ -9,6 +9,10 @@ on:
       - .github/workflows/deploy-infra.yml
       - 'terraform/**'
 
+concurrency:
+  group: backend
+  cancel-in-progress: false
+
 jobs:
   plan-changes:
     name: Review infrastructure changes
