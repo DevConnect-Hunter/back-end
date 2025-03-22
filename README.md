@@ -10,8 +10,6 @@ frontend to AWS using the following services:
 - [AWS Route 53](https://docs.aws.amazon.com/route53/): Manages the domain and its DNS records
 - [AWS Certificate Manager](https://docs.aws.amazon.com/acm/): Provides an SSL certificate for secure HTTPS access
 
-## Architecture Diagram
-
 ```plaintext
           Users
             │
@@ -33,22 +31,22 @@ frontend to AWS using the following services:
 
 ## AWS Resources
 
-### 1. Amazon S3 (Frontend Bucket)
+### S3 (Frontend bucket)
 
 A dedicated S3 bucket is used to store and serve static frontend assets.
 Access is restricted via CloudFront Origin Access Identity (OAI), so that only CloudFront has access.
 
-### 2. Amazon CloudFront (CDN)
+### CloudFront (CDN)
 
 CloudFront is configured to cache and serve the frontend efficiently.
 The certificate is managed by AWS ACM.
 
-### 3. AWS Route 53 (DNS)
+### Route 53 (DNS)
 
 A Route 53 hosted zone is created for the domain, with records pointing to CloudFront.
 Terraform does not register the domain; this was done manually in AWS Route 53 (because it costs money).
 
-### 4. AWS ACM (SSL Certificate)
+### Certificate Manager (SSL certificate)
 
 A wildcard SSL certificate is created for secure HTTPS access.
 It's auto-validated via Route 53 DNS records.
