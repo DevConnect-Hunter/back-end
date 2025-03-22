@@ -6,9 +6,12 @@ This repository contains [Terraform](https://developer.hashicorp.com/terraform/i
 frontend to AWS using the following services:
 
 - [Amazon S3](https://docs.aws.amazon.com/s3/): Hosts the frontend assets, as well as the Terraform state
-- [Amazon CloudFront](https://docs.aws.amazon.com/cloudfront/): Provides a CDN for efficient content delivery
-- [AWS Route 53](https://docs.aws.amazon.com/route53/): Manages the domain and its DNS records
-- [AWS Certificate Manager](https://docs.aws.amazon.com/acm/): Provides an SSL certificate for secure HTTPS access
+- [Amazon CloudFront](https://docs.aws.amazon.com/cloudfront/): Provides a
+  [CDN](https://en.wikipedia.org/wiki/Content_delivery_network) for efficient content delivery
+- [AWS Route 53](https://docs.aws.amazon.com/route53/): Manages the domain and its
+  [DNS](https://en.wikipedia.org/wiki/Domain_Name_System) records
+- [AWS Certificate Manager](https://docs.aws.amazon.com/acm/): Provides an
+  [SSL](https://en.wikipedia.org/wiki/Transport_Layer_Security) certificate for secure HTTPS access
 
 ```mermaid
 flowchart TD
@@ -35,7 +38,7 @@ The certificate is managed by Certificate Manager.
 
 A Route 53 hosted zone is created for the domain, with records pointing to CloudFront.
 
-Note that Terraform does not register the domain; this was done manually in AWS Route 53 because it costs money.
+Note that Terraform does not register the domain; this was done manually in Route 53 because it costs money.
 
 ### Certificate Manager (SSL certificate)
 
