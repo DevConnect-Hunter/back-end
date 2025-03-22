@@ -10,23 +10,11 @@ frontend to AWS using the following services:
 - [AWS Route 53](https://docs.aws.amazon.com/route53/): Manages the domain and its DNS records
 - [AWS Certificate Manager](https://docs.aws.amazon.com/acm/): Provides an SSL certificate for secure HTTPS access
 
-```plaintext
-          Users
-            │
-            ▼
-    +----------------+
-    | Route 53 (DNS) |
-    +----------------+
-            │
-            ▼
-    +--------------------+
-    | CloudFront (CDN)   |
-    +--------------------+
-            │
-            ▼
-    +----------------+
-    | S3 (Frontend)  |
-    +----------------+
+```mermaid
+flowchart TD
+    Users("Users") --> Route53["Route 53 (DNS)"]
+    Route53 --> CloudFront["CloudFront (CDN)"]
+    CloudFront --> S3["S3 (Frontend)"]
 ```
 
 ## AWS Resources
