@@ -22,24 +22,28 @@ flowchart TD
 ### S3 (Frontend bucket)
 
 A dedicated S3 bucket is used to store and serve static frontend assets.
-Access is restricted via CloudFront Origin Access Identity (OAI), so that only CloudFront has access.
+Access is restricted via
+[CloudFront Origin Access Identity](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html),
+so that only CloudFront has access.
 
 ### CloudFront (CDN)
 
 CloudFront is configured to cache and serve the frontend efficiently.
-The certificate is managed by AWS ACM.
+The certificate is managed by Certificate Manager.
 
 ### Route 53 (DNS)
 
 A Route 53 hosted zone is created for the domain, with records pointing to CloudFront.
-Terraform does not register the domain; this was done manually in AWS Route 53 (because it costs money).
+
+Note that Terraform does not register the domain; this was done manually in AWS Route 53 because it costs money.
 
 ### Certificate Manager (SSL certificate)
 
 A wildcard SSL certificate is created for secure HTTPS access.
 It's auto-validated via Route 53 DNS records.
 
-## Deployment Steps
+
+## Deployment
 
 A backend GitHub [workflow](.github/workflows/deploy-infra.yml) deploys the infrastructure via
 [Terraform](https://developer.hashicorp.com/terraform/intro).
