@@ -172,3 +172,73 @@ resource "aws_acm_certificate_validation" "cert_validation" {
     create = "6h"
   }
 }
+
+
+### Cognito
+
+# User pool to store user identities
+resource "aws_cognito_user_pool" "user_directory" {
+  name = "${var.project}-user-pool"
+  username_attributes = ["email"]
+  password_policy {
+    minimum_length    = 8
+    require_lowercase = true
+    require_numbers   = true
+    require_symbols   = true
+    require_uppercase = true
+  }
+  email_configuration {
+    email_sending_account = "COGNITO_DEFAULT"
+  }
+  verification_message_template {
+    default_email_option = "CONFIRM_WITH_CODE"
+    email_subject = "Your verification code"
+    email_message = "Your verification code is {####}"
+  }
+  schema {
+    name                = "email"
+    attribute_data_type = "String"
+    mutable             = true
+    required            = true
+  }
+  schema {
+    name                = "name"
+    attribute_data_type = "String"
+    mutable             = true
+    required            = true
+  }
+  mfa_configuration = "OFF"
+  account_recovery_setting {
+    recovery_mechanism {
+      name     = "verified_email"
+      priority = 1
+    }
+  }
+}
+
+# Client to access the user pool
+resource "aws_cognito_user_pool_client" "user_pool_client" {
+  name = "${var.project}-frontend"
+  user_pool_id = aws_cognito_user_pool.user_directory.id
+  generate_secret = false # No secret key for browser-based apps, since they can't store it securely
+  refresh_token_validity = 30
+  access_token_validity  = 1
+  id_token_validity      = 1
+  token_validity_units {
+    access_token  = "hours"
+    id_token      = "hours"
+    refresh_token = "days"
+  }
+  allowed_oauth_flows  = ["implicit", "code"]
+  allowed_oauth_scopes = ["email", "openid", "profile"]
+  callback_urls = ["http://localhost:3000/callback", "https://${local.domain}/callback", "https://www.${local.domain}/callback"]
+  logout_urls   = ["http://localhost:3000", "https://${local.domain}", "https://www.${local.domain}"]
+  supported_identity_providers = ["COGNITO"]
+  prevent_user_existence_errors = "ENABLED"
+  enable_token_revocation = true
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH"
+  ]
+}
