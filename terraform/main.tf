@@ -22,9 +22,15 @@ provider "aws" {
   alias  = "acm"
 }
 
+locals {
+  origin = "${var.project}-cloudfront"
+  domain = "${var.project}.org"
+}
+
+
 # S3 bucket to hold the frontend distribution
 resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = var.frontend_bucket
+  bucket = "${var.project}-frontend"
 }
 
 
@@ -33,19 +39,19 @@ resource "aws_s3_bucket" "frontend_bucket" {
 resource "aws_cloudfront_distribution" "frontend_cloudfront" {
   origin {
     domain_name = aws_s3_bucket.frontend_bucket.bucket_regional_domain_name
-    origin_id   = var.cloudfront_origin
+    origin_id   = local.origin
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai_frontend.cloudfront_access_identity_path
     }
   }
-  aliases = [var.domain, "www.${var.domain}"]
+  aliases = [local.domain, "www.${local.domain}"]
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   default_cache_behavior {
     allowed_methods = ["GET", "HEAD"]
     cached_methods = ["GET", "HEAD"]
-    target_origin_id = var.cloudfront_origin
+    target_origin_id = local.origin
     forwarded_values {
       query_string = false
       cookies {
@@ -100,7 +106,7 @@ resource "aws_s3_bucket_policy" "frontend_bucket_access_policy" {
 # NOTE: DNS registration must be done manually via the AWS Console
 
 resource "aws_route53_zone" "dns_zone" {
-  name = var.domain
+  name = local.domain
 }
 
 resource "aws_route53_record" "www" {
@@ -130,10 +136,10 @@ resource "aws_route53_record" "apex" {
 
 resource "aws_acm_certificate" "cert" {
   provider          = aws.acm
-  domain_name       = var.domain
+  domain_name       = local.domain
   validation_method = "DNS"
   subject_alternative_names = [
-    "www.${var.domain}"
+    "www.${local.domain}"
   ]
   lifecycle {
     create_before_destroy = true
